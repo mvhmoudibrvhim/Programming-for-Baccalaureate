@@ -1,0 +1,678 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Discovery Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-900:#0A1220;
+    --navy-800:#101B30;
+    --navy-700:#182541;
+    --navy-600:#22355A;
+    --ink:#EAF1FB;
+    --ink-dim:#9FB0C9;
+    --ink-dimmer:#6E7F9C;
+    --cyan:#4FD1E8;
+    --gold:#F4B942;
+    --purple:#B48CE0;
+    --magenta:#E85D9C;
+    --green:#6FCF97;
+    --danger:#EF5A5A;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:radial-gradient(1200px 600px at 50% -10%, #16233d 0%, var(--navy-900) 60%);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh;
+  }
+  h1,h2,h3,.display{font-family:'Baloo 2',cursive;}
+  .mono{font-family:'Space Mono',monospace;}
+  #app{max-width:1180px;margin:0 auto;padding:20px 18px 60px;}
+
+  header.top{text-align:center;padding:22px 10px 18px;}
+  .logo-row{display:flex;align-items:center;justify-content:center;gap:14px;margin-bottom:6px;}
+  .logo-badge{
+    width:54px;height:54px;border-radius:16px;
+    background:linear-gradient(155deg,var(--navy-700),var(--navy-800));
+    border:2px solid var(--cyan);
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 4px rgba(79,209,232,0.08);
+    flex-shrink:0;
+  }
+  header.top h1{font-size:clamp(28px,4.4vw,42px);margin:0;color:var(--ink);letter-spacing:0.5px;}
+  header.top h1 span{color:var(--cyan);}
+  header.top p{color:var(--ink-dim);font-size:15px;margin:6px 0 0;}
+
+  .track{display:flex;justify-content:center;gap:9px;margin:18px 0 6px;flex-wrap:wrap;}
+  .dot{
+    width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Baloo 2';font-weight:700;font-size:14px;
+    background:var(--navy-700);color:var(--ink-dimmer);
+    border:2px solid var(--navy-600);cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease, color .15s ease;
+  }
+  .dot:hover{transform:translateY(-2px);}
+  .dot.done{color:var(--navy-900);}
+  .dot.active{transform:scale(1.18);border-color:#fff;color:#0a1220;}
+
+  nav.tabs{
+    display:flex;gap:10px;overflow-x:auto;padding:6px 2px 16px;
+    scrollbar-width:thin;
+  }
+  nav.tabs::-webkit-scrollbar{height:6px;}
+  nav.tabs::-webkit-scrollbar-thumb{background:var(--navy-600);border-radius:4px;}
+  .tab-btn{
+    flex:0 0 auto;
+    display:flex;align-items:center;gap:9px;
+    background:var(--navy-800);
+    border:1.5px solid var(--navy-600);
+    color:var(--ink-dim);
+    padding:10px 15px 10px 10px;
+    border-radius:14px;
+    cursor:pointer;
+    font-family:'Inter';font-weight:600;font-size:13.5px;
+    white-space:nowrap;
+    transition:all .15s ease;
+  }
+  .tab-btn .ic{
+    width:32px;height:32px;border-radius:9px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--navy-700);
+  }
+  .tab-btn .ic svg{width:18px;height:18px;}
+  .tab-btn small{display:block;font-weight:400;font-size:11px;color:var(--ink-dimmer);}
+  .tab-btn.active{
+    background:var(--navy-700);
+    color:var(--ink);
+    border-color:var(--accent,var(--cyan));
+    box-shadow:0 0 0 3px color-mix(in srgb, var(--accent,var(--cyan)) 18%, transparent);
+  }
+  .tab-btn.active .ic{background:var(--accent,var(--cyan));}
+  .tab-btn.active .ic svg{color:var(--navy-900);}
+  .tab-btn:not(.active) .ic svg{color:var(--ink-dimmer);}
+
+  main#content{display:grid;grid-template-columns:1fr;gap:18px;}
+  @media(min-width:880px){
+    main#content{grid-template-columns:0.85fr 1.15fr;align-items:start;}
+  }
+  .panel{background:var(--navy-800);border:1.5px solid var(--navy-600);border-radius:20px;padding:22px 24px;}
+  .panel.explain{border-top:4px solid var(--accent,var(--cyan));}
+  .panel.demo{border-top:4px solid var(--accent,var(--cyan));min-height:340px;}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:7px;
+    font-size:12px;font-weight:700;color:var(--accent,var(--cyan));
+    background:color-mix(in srgb, var(--accent,var(--cyan)) 14%, transparent);
+    padding:4px 11px;border-radius:20px;margin-bottom:12px;
+  }
+  .panel h2{font-size:24px;margin:0 0 4px;color:var(--ink);}
+  .lede{font-size:15px;line-height:1.65;color:#CBD8EA;margin:10px 0 14px;}
+  .analogy{
+    background:var(--navy-700);border-radius:14px;padding:14px 16px;
+    font-size:14px;line-height:1.6;color:var(--ink-dim);margin-top:10px;
+    border-left:3px solid var(--accent,var(--cyan));
+  }
+  .analogy b{color:var(--ink);}
+  .keypoints{list-style:none;margin:14px 0 0;padding:0;display:flex;flex-direction:column;gap:9px;}
+  .keypoints li{display:flex;gap:10px;align-items:flex-start;font-size:14px;color:#CBD8EA;line-height:1.5;}
+  .keypoints li::before{
+    content:"";flex-shrink:0;margin-top:6px;width:7px;height:7px;border-radius:50%;
+    background:var(--accent,var(--cyan));
+  }
+
+  .demo h3{font-size:15px;color:var(--ink-dim);margin:0 0 14px;font-family:'Inter';font-weight:700;}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .btn{
+    font-family:'Inter';font-weight:700;font-size:13.5px;
+    background:var(--accent,var(--cyan));color:var(--navy-900);
+    border:none;border-radius:12px;padding:11px 18px;cursor:pointer;
+    transition:transform .1s ease, filter .15s ease;
+  }
+  .btn:hover{filter:brightness(1.08);}
+  .btn:active{transform:scale(0.97);}
+  .btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--navy-600);}
+  .btn.ghost:hover{border-color:var(--accent,var(--cyan));}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;filter:none;transform:none;}
+  input[type="text"]{
+    font-family:'Inter';font-size:14px;background:var(--navy-900);
+    border:1.5px solid var(--navy-600);color:var(--ink);border-radius:10px;
+    padding:10px 13px;width:100%;
+  }
+  input[type="text"]:focus{outline:none;border-color:var(--accent,var(--cyan));}
+  input[type="range"]{accent-color:var(--accent,var(--cyan));width:100%;}
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;
+    background:var(--navy-700);color:var(--ink-dim);border-radius:20px;
+    padding:5px 12px;font-size:12.5px;font-weight:600;
+  }
+  .box{background:var(--navy-900);border:1.5px dashed var(--navy-600);border-radius:14px;padding:16px;margin-top:14px;}
+  .msg-line{font-size:14px;line-height:1.5;color:var(--ink-dim);}
+  .warn-box{background:rgba(239,90,90,0.1);border:1.5px solid var(--danger);color:#ffb3b3;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:10px;}
+  .ok-box{background:rgba(111,207,151,0.1);border:1.5px solid var(--green);color:#b7f0cd;border-radius:12px;padding:12px 14px;font-size:13.5px;margin-top:10px;}
+  .flash{animation:flash .5s ease;}
+  @keyframes flash{0%{transform:scale(1);}30%{transform:scale(1.04);}100%{transform:scale(1);}}
+  @keyframes shakeit{
+    10%,90%{transform:translateX(-2px);}20%,80%{transform:translateX(4px);}
+    30%,50%,70%{transform:translateX(-7px);}40%,60%{transform:translateX(7px);}
+  }
+  .shake{animation:shakeit .5s;}
+  footer.credits{text-align:center;color:var(--ink-dimmer);font-size:12.5px;margin-top:34px;}
+
+  /* toggle switch */
+  .switchrow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--navy-700);}
+  .switchrow:last-child{border-bottom:none;}
+  .switch{position:relative;width:46px;height:26px;flex-shrink:0;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider-track{position:absolute;inset:0;background:var(--navy-600);border-radius:20px;cursor:pointer;transition:.2s;}
+  .slider-track::before{content:"";position:absolute;width:20px;height:20px;left:3px;top:3px;background:var(--ink);border-radius:50%;transition:.2s;}
+  .switch input:checked + .slider-track{background:var(--accent,var(--cyan));}
+  .switch input:checked + .slider-track::before{transform:translateX(20px);background:var(--navy-900);}
+
+  .light{width:60px;height:60px;border-radius:50%;margin:10px auto;display:flex;align-items:center;justify-content:center;font-size:26px;transition:all .25s;background:var(--navy-700);}
+  .light.on{background:var(--green);box-shadow:0 0 22px rgba(111,207,151,0.5);}
+  .light.off{background:var(--navy-700);}
+
+  /* ML number line */
+  .numline{position:relative;height:64px;margin:18px 4px 8px;background:var(--navy-900);border-radius:12px;border:1.5px solid var(--navy-600);}
+  .numline .thresh{position:absolute;top:0;bottom:0;width:2px;background:var(--gold);transition:left .15s;}
+  .numline .thresh::after{content:"threshold";position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;color:var(--gold);white-space:nowrap;}
+  .fruit-dot{position:absolute;top:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid rgba(255,255,255,0.25);}
+  .fruit-dot.test{border:2px dashed #fff;}
+
+  /* neural net */
+  .netstage{display:flex;justify-content:center;margin-top:6px;}
+  .netnode{transition:fill-opacity .3s, stroke-width .3s;}
+  .netlabel{font-size:9px;fill:var(--ink-dimmer);font-family:Inter;}
+
+  /* monster maker */
+  .monster-frame{display:flex;justify-content:center;margin:10px 0;}
+  .monster-frame svg{background:var(--navy-900);border-radius:16px;border:1.5px solid var(--navy-600);}
+  .sentence-box{
+    min-height:60px;background:var(--navy-900);border:1.5px dashed var(--navy-600);border-radius:12px;
+    padding:14px 16px;font-size:15px;line-height:1.6;color:var(--ink);margin-top:10px;
+  }
+  .cursor-blink{display:inline-block;width:2px;height:16px;background:var(--magenta);vertical-align:middle;animation:blink 1s step-start infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
+  @media(max-width:600px){ .panel{padding:18px;} }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="top">
+    <div class="logo-row">
+      <div class="logo-badge">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#4FD1E8" stroke-width="1.8"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.5 4.5l2 2M17.5 17.5l2 2M19.5 4.5l-2 2M6.5 17.5l-2 2"/></svg>
+      </div>
+      <h1>AI Discovery <span>Lab</span></h1>
+    </div>
+    <p>4 stations to explore how smart machines actually think</p>
+    <div class="track" id="track"></div>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+  <main id="content"></main>
+
+  <footer class="credits">Tap a station above to jump around &middot; built for curious young explorers 🤖</footer>
+</div>
+
+<script>
+const el = (tag, cls, html) => { const e=document.createElement(tag); if(cls) e.className=cls; if(html!==undefined) e.innerHTML=html; return e; };
+const visited = new Set();
+
+const ICONS = {
+  ai: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="7" width="10" height="10" rx="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.8 4.8l1.8 1.8M17.4 17.4l1.8 1.8M19.2 4.8l-1.8 1.8M6.6 17.4l-1.8 1.8"/></svg>`,
+  ml: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><circle cx="7" cy="15" r="1.3"/><circle cx="11" cy="10" r="1.3"/><circle cx="15" cy="13" r="1.3"/><circle cx="19" cy="6" r="1.3"/><path d="M7 15 11 10 15 13 19 6" stroke-dasharray="2 2"/></svg>`,
+  dl: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="4" cy="7" r="1.6"/><circle cx="4" cy="17" r="1.6"/><circle cx="12" cy="4" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="12" cy="20" r="1.6"/><circle cx="20" cy="9" r="1.6"/><circle cx="20" cy="15" r="1.6"/><path d="M5.4 7.6 10.6 4.6M5.4 6.6 10.6 11.4M5.4 16.4 10.6 12.6M5.4 17.4 10.6 19.6M13.4 4.6 18.6 8.6M13.4 12 18.6 9.4M13.4 12 18.6 14.6M13.4 19.6 18.6 15.4"/></svg>`,
+  gen: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/><path d="M12 8l1.3 3.2L16 12l-2.7.8L12 16l-1.3-3.2L8 12l2.7-.8z"/></svg>`,
+  check: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>`,
+  x: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5l14 14M19 5 5 19"/></svg>`,
+};
+
+const modules = [
+  {
+    id:'ai', color:'--cyan', title:'Artificial Intelligence', icon:ICONS.ai,
+    lede:'AI is when a computer follows instructions to make decisions that seem "smart" — like deciding, reacting, or solving a problem, instead of just doing one fixed thing.',
+    analogy:'<b>Think of it like:</b> a very obedient robot butler who only knows "if" and "then" rules. "IF it starts raining, THEN close the windows." It\'s not thinking for itself — it\'s following clear logical rules a person wrote for it.',
+    points:[
+      'Classic AI usually follows rules written directly by a programmer.',
+      'It can look "smart" even though it\'s just checking conditions very fast.',
+      'Every decision can be traced back to an exact rule — nothing is a mystery.',
+      'Machine Learning (next station) is a different way to build AI — by learning instead of being told rules.'
+    ],
+    build: buildAI
+  },
+  {
+    id:'ml', color:'--gold', title:'Machine Learning', icon:ICONS.ml,
+    lede:'Machine Learning is AI that learns its own rules by looking at lots of examples, instead of a person writing the rules by hand.',
+    analogy:'<b>Think of it like:</b> teaching a friend to sort fruit without ever explaining the rule — you just show them lots of apples and oranges, and they figure out the pattern themselves (maybe "smaller ones are usually apples").',
+    points:[
+      'You give the computer training examples that already have the right answers.',
+      'The computer searches for a pattern that fits the examples well.',
+      'Once trained, it uses that pattern to guess the answer for NEW things it has never seen.',
+      'More or better examples usually means better guesses — that\'s "learning."'
+    ],
+    build: buildML
+  },
+  {
+    id:'dl', color:'--purple', title:'Deep Learning', icon:ICONS.dl,
+    lede:'Deep Learning is Machine Learning using many connected layers of tiny "neurons," loosely inspired by how brain cells connect — the "deep" part means lots of layers stacked together.',
+    analogy:'<b>Think of it like:</b> a relay of friends passing a rumor down a line, and each friend adds their own small opinion before passing it on. By the time it reaches the last friend, they\'ve combined lots of little clues into one confident final answer.',
+    points:[
+      'A neural network has layers of "neurons" that pass signals forward.',
+      'Each layer combines simple clues into more complex ones.',
+      'Early layers might notice edges or colors; deeper layers notice whole shapes or objects.',
+      'This layering is why deep learning is so good at hard jobs like recognizing photos or understanding speech.'
+    ],
+    build: buildDL
+  },
+  {
+    id:'gen', color:'--magenta', title:'Generative AI', icon:ICONS.gen,
+    lede:'Generative AI doesn\'t just sort or label things — it creates brand new content: text, pictures, music, or ideas, based on patterns it learned from tons of examples.',
+    analogy:'<b>Think of it like:</b> an artist who has looked at thousands of paintings and stories, and now can dream up a brand-new picture or tale that nobody has ever seen before, by remixing the patterns and styles they\'ve learned.',
+    points:[
+      'Text generators predict a likely next word, over and over, to build whole sentences.',
+      'Image generators combine learned visual patterns into brand-new pictures.',
+      'The output is NEW — not copy-pasted — but it\'s built from patterns in what it learned.',
+      'Because there\'s some randomness involved, asking twice can give two different creative answers!'
+    ],
+    build: buildGen
+  },
+];
+
+const tabsEl = document.getElementById('tabs');
+const trackEl = document.getElementById('track');
+const contentEl = document.getElementById('content');
+let activeIndex = 0;
+
+modules.forEach((m,i)=>{
+  const btn = el('button','tab-btn');
+  btn.style.setProperty('--accent', `var(${m.color})`);
+  btn.innerHTML = `<span class="ic">${m.icon}</span><span>${m.title}<small>Station ${i+1}</small></span>`;
+  btn.addEventListener('click', ()=>selectModule(i));
+  tabsEl.appendChild(btn);
+
+  const dot = el('div','dot', String(i+1));
+  dot.title = m.title;
+  dot.addEventListener('click', ()=>selectModule(i));
+  trackEl.appendChild(dot);
+});
+
+function refreshNav(){
+  [...tabsEl.children].forEach((b,i)=>b.classList.toggle('active', i===activeIndex));
+  [...trackEl.children].forEach((d,i)=>{
+    d.classList.toggle('active', i===activeIndex);
+    d.classList.toggle('done', visited.has(i) && i!==activeIndex);
+    const c = getComputedStyle(document.documentElement).getPropertyValue(modules[i].color).trim();
+    d.style.borderColor = (i===activeIndex) ? '#fff' : (visited.has(i) ? c : '');
+    d.style.background = (i===activeIndex || visited.has(i)) ? c : '';
+    d.style.color = (i===activeIndex || visited.has(i)) ? '#0a1220' : '';
+  });
+}
+
+function selectModule(i){
+  activeIndex = i;
+  visited.add(i);
+  renderModule(modules[i]);
+  refreshNav();
+}
+
+function renderModule(m){
+  contentEl.innerHTML = '';
+  const explain = el('section','panel explain');
+  explain.style.setProperty('--accent', `var(${m.color})`);
+  explain.innerHTML = `
+    <div class="eyebrow">${m.icon.replace('viewBox','width="14" height="14" viewBox')} Station ${modules.indexOf(m)+1}</div>
+    <h2>${m.title}</h2>
+    <p class="lede">${m.lede}</p>
+    <div class="analogy">${m.analogy}</div>
+    <ul class="keypoints">${m.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+  `;
+  contentEl.appendChild(explain);
+
+  const demo = el('section','panel demo');
+  demo.style.setProperty('--accent', `var(${m.color})`);
+  contentEl.appendChild(demo);
+  m.build(demo);
+}
+
+/* ================================================================
+   STATION 1 — ARTIFICIAL INTELLIGENCE (rule engine)
+================================================================ */
+function buildAI(root){
+  root.innerHTML = `<h3>Program the smart sprinkler</h3>`;
+  const box = el('div','box');
+  box.innerHTML = `
+    <div class="switchrow">
+      <span>🌱 Soil is dry</span>
+      <label class="switch"><input type="checkbox" id="s1" checked><span class="slider-track"></span></label>
+    </div>
+    <div class="switchrow">
+      <span>☀️ It's daytime</span>
+      <label class="switch"><input type="checkbox" id="s2" checked><span class="slider-track"></span></label>
+    </div>
+    <div class="switchrow">
+      <span>🌧️ Rain expected today</span>
+      <label class="switch"><input type="checkbox" id="s3"><span class="slider-track"></span></label>
+    </div>
+    <div class="light off" id="aiLight">💧</div>
+    <p style="text-align:center;font-size:13px;color:var(--ink-dim);" id="aiStatus"></p>
+    <div class="box" style="margin-top:14px;background:var(--navy-800);">
+      <p class="msg-line mono" style="font-size:12.5px;">RULE: water ON <b style="color:var(--cyan)">if</b> soil is dry <b style="color:var(--cyan)">AND</b> it's daytime <b style="color:var(--cyan)">AND</b> no rain expected</p>
+    </div>
+  `;
+  root.appendChild(box);
+  const s1=box.querySelector('#s1'), s2=box.querySelector('#s2'), s3=box.querySelector('#s3');
+  const light=box.querySelector('#aiLight'), status=box.querySelector('#aiStatus');
+  function update(){
+    const water = s1.checked && s2.checked && !s3.checked;
+    light.classList.toggle('on', water);
+    light.classList.toggle('off', !water);
+    status.textContent = water ? 'Sprinkler decision: WATER the plants 💧' : 'Sprinkler decision: stay OFF, no watering needed';
+  }
+  [s1,s2,s3].forEach(s=>s.addEventListener('change', update));
+  update();
+}
+
+/* ================================================================
+   STATION 2 — MACHINE LEARNING (train a fruit sorter)
+================================================================ */
+function buildML(root){
+  root.innerHTML = `<h3>Train a fruit sorter</h3><p class="msg-line">Slide the threshold to separate the apples 🍎 from the oranges 🍊 by size. Small fruit = apple, big fruit = orange.</p>`;
+
+  const fruits = [
+    {size:1.2, type:'apple'},{size:2.0,type:'apple'},{size:2.6,type:'apple'},
+    {size:3.4,type:'apple'},{size:4.6,type:'orange'},{size:5.4,type:'orange'},
+    {size:6.2,type:'orange'},{size:7.5,type:'orange'},{size:3.9,type:'apple'},{size:5.9,type:'orange'}
+  ];
+  const line = el('div','numline');
+  fruits.forEach(f=>{
+    const dot = el('div','fruit-dot', f.type==='apple' ? '🍎':'🍊');
+    dot.style.left = (f.size/9*100)+'%';
+    dot.style.background = f.type==='apple' ? 'rgba(111,207,151,0.25)' : 'rgba(242,145,74,0.25)';
+    line.appendChild(dot);
+  });
+  const threshLine = el('div','thresh');
+  line.appendChild(threshLine);
+  root.appendChild(line);
+
+  const controls = el('div','box');
+  controls.innerHTML = `
+    <div class="row" style="justify-content:space-between;font-size:13px;color:var(--ink-dim);">
+      <span>Threshold (size)</span><span class="mono" id="mlThreshVal">4.0</span>
+    </div>
+    <input type="range" id="mlThresh" min="0.5" max="8.5" step="0.1" value="4.0">
+    <p style="text-align:center;margin-top:12px;font-size:15px;" id="mlAccuracy"></p>
+    <div class="row" style="justify-content:center;margin-top:8px;">
+      <button class="btn" id="mlTest">🍏 Test a brand-new fruit</button>
+    </div>
+    <div id="mlTestResult"></div>
+  `;
+  root.appendChild(controls);
+
+  const threshInput = controls.querySelector('#mlThresh');
+  const threshVal = controls.querySelector('#mlThreshVal');
+  const accuracyEl = controls.querySelector('#mlAccuracy');
+  const testBtn = controls.querySelector('#mlTest');
+  const testResult = controls.querySelector('#mlTestResult');
+
+  function predict(size, t){ return size < t ? 'apple' : 'orange'; }
+
+  function update(){
+    const t = parseFloat(threshInput.value);
+    threshVal.textContent = t.toFixed(1);
+    threshLine.style.left = (t/9*100)+'%';
+    let correct = 0;
+    fruits.forEach(f=>{ if(predict(f.size,t)===f.type) correct++; });
+    const pct = Math.round(correct/fruits.length*100);
+    accuracyEl.innerHTML = `Training accuracy: <b style="color:${pct===100?'var(--green)':'var(--gold)'}">${pct}%</b> (${correct}/${fruits.length} correct)`;
+  }
+  threshInput.addEventListener('input', update);
+  update();
+
+  testBtn.addEventListener('click', ()=>{
+    const size = Math.round((Math.random()*8+0.5)*10)/10;
+    const trueType = size < 4.2 ? 'apple' : 'orange';
+    const t = parseFloat(threshInput.value);
+    const guess = predict(size, t);
+    const dot = el('div','fruit-dot test', trueType==='apple'?'🍎':'🍊');
+    dot.style.left = (size/9*100)+'%';
+    dot.style.background = trueType==='apple' ? 'rgba(111,207,151,0.35)' : 'rgba(242,145,74,0.35)';
+    line.appendChild(dot);
+    setTimeout(()=>dot.remove(), 4000);
+    if(guess===trueType){
+      testResult.innerHTML = `<div class="ok-box">New fruit at size ${size} — the model guessed <b>${guess}</b>, and it was correct!</div>`;
+    } else {
+      testResult.innerHTML = `<div class="warn-box">New fruit at size ${size} — the model guessed <b>${guess}</b>, but it was actually a${trueType==='apple'?'n':''} ${trueType}. Try adjusting the threshold!</div>`;
+    }
+  });
+}
+
+/* ================================================================
+   STATION 3 — DEEP LEARNING (neural network visualizer)
+================================================================ */
+function buildDL(root){
+  root.innerHTML = `<h3>Watch a tiny neural network think</h3><p class="msg-line">Adjust the two clues about a mystery object and watch how signals flow through the layers to a final guess: basketball 🏀 or orange 🍊?</p>`;
+
+  const controls = el('div','box');
+  controls.innerHTML = `
+    <div class="row" style="justify-content:space-between;font-size:13px;color:var(--ink-dim);"><span>Size (small → large)</span><span class="mono" id="dlX1v">0.5</span></div>
+    <input type="range" id="dlX1" min="0" max="1" step="0.01" value="0.5">
+    <div class="row" style="justify-content:space-between;font-size:13px;color:var(--ink-dim);margin-top:10px;"><span>Orangeness (not orange → very orange)</span><span class="mono" id="dlX2v">0.5</span></div>
+    <input type="range" id="dlX2" min="0" max="1" step="0.01" value="0.5">
+  `;
+  root.appendChild(controls);
+
+  const stage = el('div','netstage');
+  stage.innerHTML = `
+  <svg width="280" height="220" viewBox="0 0 280 220">
+    <g id="dlLines" stroke="var(--navy-600)" stroke-width="1.5"></g>
+    <g id="dlNodes"></g>
+    <text x="30" y="205" class="netlabel">inputs</text>
+    <text x="130" y="205" class="netlabel">hidden layer</text>
+    <text x="230" y="205" class="netlabel">output</text>
+  </svg>`;
+  root.appendChild(stage);
+
+  const resultBox = el('div','box');
+  resultBox.style.textAlign='center';
+  root.appendChild(resultBox);
+
+  const inputPos = [[30,70],[30,150]];
+  const hiddenPos = [[140,45],[140,110],[140,175]];
+  const outputPos = [[240,110]];
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const linesG = stage.querySelector('#dlLines');
+  const nodesG = stage.querySelector('#dlNodes');
+
+  function makeLine(x1,y1,x2,y2){
+    const l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    return l;
+  }
+  function makeCircle(x,y,r,color){
+    const c = document.createElementNS(svgNS,'circle');
+    c.setAttribute('cx',x);c.setAttribute('cy',y);c.setAttribute('r',r);
+    c.setAttribute('fill',color);c.setAttribute('class','netnode');
+    c.setAttribute('fill-opacity','0.25');
+    return c;
+  }
+
+  inputPos.forEach(([x,y])=>hiddenPos.forEach(([x2,y2])=>linesG.appendChild(makeLine(x,y,x2,y2))));
+  hiddenPos.forEach(([x,y])=>outputPos.forEach(([x2,y2])=>linesG.appendChild(makeLine(x,y,x2,y2))));
+
+  const inputNodes = inputPos.map(([x,y])=>{ const c=makeCircle(x,y,13,'#4FD1E8'); nodesG.appendChild(c); return c; });
+  const hiddenNodes = hiddenPos.map(([x,y])=>{ const c=makeCircle(x,y,13,'#B48CE0'); nodesG.appendChild(c); return c; });
+  const outputNodes = outputPos.map(([x,y])=>{ const c=makeCircle(x,y,15,'#E85D9C'); nodesG.appendChild(c); return c; });
+
+  const hiddenWeights = [ [3.2,-2.1,1.0], [-1.5,2.8,1.0], [2.0,2.4,-3.0] ];
+  const outWeights = [2.5, 1.8, 1.6];
+  function sigmoid(z){ return 1/(1+Math.exp(-z)); }
+
+  function update(){
+    const x1 = parseFloat(controls.querySelector('#dlX1').value);
+    const x2 = parseFloat(controls.querySelector('#dlX2').value);
+    controls.querySelector('#dlX1v').textContent = x1.toFixed(2);
+    controls.querySelector('#dlX2v').textContent = x2.toFixed(2);
+
+    inputNodes[0].setAttribute('fill-opacity', 0.25+x1*0.7);
+    inputNodes[1].setAttribute('fill-opacity', 0.25+x2*0.7);
+
+    const hActs = hiddenWeights.map(([w1,w2,b])=> sigmoid(w1*x1 + w2*x2 + b - 1.5));
+    hActs.forEach((a,i)=> hiddenNodes[i].setAttribute('fill-opacity', 0.2+a*0.75));
+
+    const outZ = hActs.reduce((sum,a,i)=> sum + a*outWeights[i], 0) - 3.2;
+    const outAct = sigmoid(outZ);
+    outputNodes[0].setAttribute('fill-opacity', 0.2+outAct*0.75);
+
+    const pct = Math.round(outAct*100);
+    resultBox.innerHTML = `
+      <p style="font-size:13px;color:var(--ink-dim);margin:0 0 8px;">Output signal strength</p>
+      <p style="font-size:26px;margin:0;" class="mono">${pct}%</p>
+      <p style="font-size:14px;margin-top:8px;">${outAct>0.5 ? '🍊 leaning toward: orange' : '🏀 leaning toward: basketball'}</p>
+    `;
+  }
+  controls.querySelectorAll('input[type=range]').forEach(i=>i.addEventListener('input', update));
+  update();
+}
+
+/* ================================================================
+   STATION 4 — GENERATIVE AI (text + image generation)
+================================================================ */
+const chainDict = {
+  'the': ['robot','wizard','dragon','tiny','purple'],
+  'robot': ['danced','discovered','painted','sneezed'],
+  'wizard': ['baked','discovered','launched','giggled'],
+  'dragon': ['juggled','painted','discovered','sneezed'],
+  'tiny': ['robot','wizard','dragon','spaceship'],
+  'purple': ['dragon','spaceship','wizard'],
+  'spaceship': ['landed','sneezed','wobbled'],
+  'danced': ['on','with','under'],
+  'discovered': ['a','the'],
+  'painted': ['a','the'],
+  'sneezed': ['on','loudly','and'],
+  'baked': ['a','cookies'],
+  'launched': ['a','into'],
+  'giggled': ['at','and'],
+  'juggled': ['flaming','three','a'],
+  'landed': ['on','near','in'],
+  'wobbled': ['and','across'],
+  'on': ['the','a'],
+  'with': ['a','the'],
+  'under': ['the','a'],
+  'a': ['pizza','banana','castle','giant marshmallow','tiny moon'],
+  'the': ['moon','castle','ocean','cafeteria'],
+  'into': ['space','the ocean','a volcano'],
+  'at': ['everyone','the moon'],
+  'and': ['flew away','fell asleep','started singing'],
+  'near': ['a castle','the ocean'],
+  'in': ['a teacup','the garden'],
+  'across': ['the room','the galaxy'],
+  'flaming': ['marshmallows','bananas'],
+  'three': ['moons','cookies'],
+  'cookies': ['for breakfast'],
+};
+const starters = ['the','tiny','purple'];
+
+function generateSentence(){
+  let word = starters[Math.floor(Math.random()*starters.length)];
+  const words = [word];
+  for(let i=0;i<7;i++){
+    const options = chainDict[word];
+    if(!options) break;
+    word = options[Math.floor(Math.random()*options.length)];
+    words.push(word);
+  }
+  const sentence = words.join(' ');
+  return sentence.charAt(0).toUpperCase()+sentence.slice(1)+'.';
+}
+
+function buildGen(root){
+  root.innerHTML = `<h3>Generate a silly sentence</h3><p class="msg-line">Each click, the AI predicts one likely next word at a time — just like a chatbot!</p>`;
+
+  const textBox = el('div','sentence-box');
+  textBox.innerHTML = `<span id="genSentence" style="color:var(--ink-dimmer);">Click generate to start...</span>`;
+  root.appendChild(textBox);
+
+  const row = el('div','row');
+  row.style.marginTop='12px';
+  row.innerHTML = `<button class="btn" id="genTextBtn">✨ Generate sentence</button>`;
+  root.appendChild(row);
+
+  row.querySelector('#genTextBtn').addEventListener('click', ()=>{
+    const sentEl = textBox.querySelector('#genSentence');
+    sentEl.style.color = 'var(--ink)';
+    const full = generateSentence();
+    const words = full.split(' ');
+    sentEl.textContent = '';
+    let i=0;
+    const iv = setInterval(()=>{
+      sentEl.textContent += (i>0?' ':'') + words[i];
+      i++;
+      if(i>=words.length) clearInterval(iv);
+    }, 160);
+  });
+
+  const monsterSection = el('div');
+  monsterSection.style.marginTop='26px';
+  monsterSection.innerHTML = `<h3>Generate a brand-new monster</h3><p class="msg-line">Same idea, but for pictures — the AI mixes learned shapes, colors, and features into something new.</p>`;
+  root.appendChild(monsterSection);
+
+  const frame = el('div','monster-frame');
+  frame.innerHTML = `<svg id="monsterSvg" width="180" height="180" viewBox="0 0 180 180"></svg>`;
+  monsterSection.appendChild(frame);
+
+  const genBtnRow = el('div','row');
+  genBtnRow.style.justifyContent='center';
+  genBtnRow.style.marginTop='10px';
+  genBtnRow.innerHTML = `<button class="btn" id="genMonsterBtn">🎨 Generate monster</button>`;
+  monsterSection.appendChild(genBtnRow);
+
+  const bodyColors = ['#4FD1E8','#F4B942','#B48CE0','#6FCF97','#FF7A6E','#E85D9C'];
+  const bodyShapes = ['circle','squarish','blob'];
+
+  function drawMonster(){
+    const svg = frame.querySelector('#monsterSvg');
+    const color = bodyColors[Math.floor(Math.random()*bodyColors.length)];
+    const shape = bodyShapes[Math.floor(Math.random()*bodyShapes.length)];
+    const eyes = 1 + Math.floor(Math.random()*3);
+    const hasHorns = Math.random() > 0.5;
+    const mouthType = Math.random() > 0.5 ? 'smile' : 'zigzag';
+
+    let bodyPath = '';
+    if(shape==='circle') bodyPath = `<ellipse cx="90" cy="100" rx="55" ry="50" fill="${color}"/>`;
+    else if(shape==='squarish') bodyPath = `<rect x="35" y="55" width="110" height="95" rx="26" fill="${color}"/>`;
+    else bodyPath = `<path d="M90 45c40 0 60 30 55 65-4 30-35 45-55 45s-51-15-55-45c-5-35 15-65 55-65z" fill="${color}"/>`;
+
+    let horns = '';
+    if(hasHorns) horns = `<path d="M65 55 55 25 75 50z" fill="${color}"/><path d="M115 55 125 25 105 50z" fill="${color}"/>`;
+
+    let eyesSvg = '';
+    const eyeSpacing = eyes===1 ? [0] : eyes===2 ? [-16,16] : [-22,0,22];
+    eyeSpacing.forEach(dx=>{
+      eyesSvg += `<circle cx="${90+dx}" cy="95" r="10" fill="#0A1220"/><circle cx="${90+dx}" cy="95" r="10" fill="#fff" fill-opacity="0.9" transform="translate(0,0)"/><circle cx="${93+dx}" cy="93" r="4" fill="#0A1220"/>`;
+    });
+
+    let mouth = mouthType==='smile'
+      ? `<path d="M70 125 Q90 145 110 125" stroke="#0A1220" stroke-width="4" fill="none" stroke-linecap="round"/>`
+      : `<path d="M65 122 l8 10 l8 -10 l8 10 l8 -10 l8 10" stroke="#0A1220" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+    svg.innerHTML = horns + bodyPath + eyesSvg + mouth;
+    svg.classList.add('flash');
+    setTimeout(()=>svg.classList.remove('flash'), 500);
+  }
+  drawMonster();
+  genBtnRow.querySelector('#genMonsterBtn').addEventListener('click', drawMonster);
+}
+
+selectModule(0);
+</script>
+</body>
+</html>
