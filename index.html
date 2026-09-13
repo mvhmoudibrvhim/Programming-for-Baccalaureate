@@ -13,25 +13,34 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <div>
-      <div class="brand">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M12 3C9 3 7 5 7 7.5C5.5 7.8 4.5 9 4.5 10.5C4.5 11.3 4.8 12 5.3 12.5C4.8 13 4.5 13.7 4.5 14.5C4.5 16 5.6 17.2 7 17.4V19C7 20.1 7.9 21 9 21H12V3Z"
-            fill="#4f8bf0" />
-          <path
-            d="M12 3C15 3 17 5 17 7.5C18.5 7.8 19.5 9 19.5 10.5C19.5 11.3 19.2 12 18.7 12.5C19.2 13 19.5 13.7 19.5 14.5C19.5 16 18.4 17.2 17 17.4V19C17 20.1 16.1 21 15 21H12V3Z"
-            fill="#2d63c8" />
-        </svg>
-        Programming for Baccalaureate
+      <div class="sidebar-header">
+        <div class="brand">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 3C9 3 7 5 7 7.5C5.5 7.8 4.5 9 4.5 10.5C4.5 11.3 4.8 12 5.3 12.5C4.8 13 4.5 13.7 4.5 14.5C4.5 16 5.6 17.2 7 17.4V19C7 20.1 7.9 21 9 21H12V3Z"
+              fill="#4f8bf0" />
+            <path
+              d="M12 3C15 3 17 5 17 7.5C18.5 7.8 19.5 9 19.5 10.5C19.5 11.3 19.2 12 18.7 12.5C19.2 13 19.5 13.7 19.5 14.5C19.5 16 18.4 17.2 17 17.4V19C17 20.1 16.1 21 15 21H12V3Z"
+              fill="#2d63c8" />
+          </svg>
+          Programming for Baccalaureate
+        </div>
+
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu" aria-expanded="false"
+          aria-controls="siteNav">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
       </div>
 
-      <nav class="nav">
+      <nav class="nav" id="siteNav">
         <a href="#" class="active">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
             <rect x="4" y="4" width="16" height="16" rx="2" />
             <path d="M4 9h16M9 9v11" />
           </svg>
-          Lessons
+          Lectures
         </a>
         <a href="./homework-questions.html">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
@@ -81,7 +90,7 @@
       </div>
 
       <div class="promo-copy">
-        <h2>New Lesson: How Ai Works</h2>
+        <h2>New Lecture: How Ai Works</h2>
         <button class="btn-primary">Learn now</button>
       </div>
 
@@ -94,13 +103,13 @@
       </div>
     </section>
 
-    <h2 class="section-title">New Lessons</h2>
+    <h2 class="section-title">New Lectures</h2>
 
     <div class="courses">
-      <a href="./lesson.html">
+      <a href="./lecture.html">
         <article class="course-card">
           <div>
-            <h3 class="course-title">Lesson 1: How Ai Works</h3>
+            <h3 class="course-title">Lecture 1: How Ai Works</h3>
             <p class="course-sub">1 hour</p>
           </div>
         </article>
@@ -108,20 +117,48 @@
 
       <article class="course-card">
         <div>
-          <h3 class="course-title">Lesson 2</h3>
+          <h3 class="course-title">Lecture 2</h3>
           <p class="course-sub">1 hour</p>
         </div>
       </article>
 
       <article class="course-card">
         <div>
-          <h3 class="course-title">Lesson 3</h3>
+          <h3 class="course-title">Lecture 3</h3>
           <p class="course-sub">1 hour</p>
         </div>
       </article>
     </div>
   </main>
 
+  <script>
+    const menuToggle = document.getElementById('menuToggle');
+    const siteNav = document.getElementById('siteNav');
+
+    menuToggle.addEventListener('click', () => {
+      const isOpen = siteNav.classList.toggle('open');
+      menuToggle.classList.toggle('is-active', isOpen);
+      menuToggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close the menu after tapping a link
+    siteNav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => {
+        siteNav.classList.remove('open');
+        menuToggle.classList.remove('is-active');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+
+    // Reset menu state if the viewport grows back to desktop size
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 860) {
+        siteNav.classList.remove('open');
+        menuToggle.classList.remove('is-active');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  </script>
 </body>
 
 </html>
